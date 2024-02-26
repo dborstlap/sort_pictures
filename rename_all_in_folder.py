@@ -1,43 +1,52 @@
 import os
+from sort_pictures import get_image_datetime, get_video_datetime, get_file_type
 
-dir = 'T:/Pictures/DISKS/Group030/Disc34/ZIM-MOZ/Deel6'
-from PIL import Image, ExifTags
-from sort_pictures import get_image_datetime, get_video_datetime
+def rename_pictures_in_folder(dir_path):
+    """
+    Renames all pictures and videos in the given directory to a 'YYYY_MM_DD' format based on their metadata.
+    """
+    datetime_counts = {}
+    for item in os.listdir(dir_path):
+        item_path = os.path.join(dir_path, item)
+        if os.path.isfile(item_path):
+            file_type = get_file_type(item_path)
+
+            if file_type in ['image', 'video']:
+                try:
+                    if file_type == 'image':
+                        file_datetime, _ = get_image_datetime(item_path)
+                    else:  # video
+                        file_datetime, _ = get_video_datetime(item_path)
+                    
+                    # date_str = file_datetime.strftime('%Y_%m_%d')
+                    date_str = file_datetime.strftime('%Y%m%d-%H%M')
+
+                    base_new_name = f"{date_str}{os.path.splitext(item)[1]}"
+
+                    # Create a unique name by appending a counter if necessary
+                    counter = datetime_counts.get(base_new_name, 0)
+                    datetime_counts[base_new_name] = counter + 1
 
 
-# Iterate directory
-for rel_path in os.listdir(dir):
+                    new_file_name = f"{date_str}_{counter}{os.path.splitext(item)[1]}"
+                    new_path = os.path.join(dir_path, new_file_name)
 
-    path = os.path.join(dir, rel_path)
+                    
+                    os.rename(item_path, new_path)
+                    print(f"{item_path} renamed to {new_path}")
+                except Exception as e:
+                    print(f"Error processing {item_path}: {e}")
 
-    # check if current path is a file
-    if os.path.isfile(path):
 
-        file_name, file_extension = os.path.splitext(rel_path)
 
-        # check if file is image
-        try:
-            is_image = True
-            img = Image.open(path)
-        except:
-            is_image = False
-        
-        is_video = file_extension in ('.MP4', '.mp4', '.AVI', '.avi')
-        img.close()
+def rename_pictures_recursively(dir_path):
+    """
+    Recursively renames pictures in all directories and subdirectories starting from the given directory.
+    """
+    for root, dirs, files in os.walk(dir_path):
+        rename_pictures_in_folder(root)
 
-        if is_image or is_video:
-
-            if is_image:
-                datetime = get_image_datetime(path)
-            elif is_video:
-                datetime = get_video_datetime(path)
-            
-            date = datetime.strftime('%Y_%m_%d')
-
-            # new_file_name = file_name + '111'
-            new_file_name = date
-            new_file_path = new_file_name + file_extension
-
-            # print(path, 'replaced by', os.path.join(dir, new_file_path))
-            os.replace(path, os.path.join(dir, new_file_path))
-            print(rel_path, 'renamed as', new_file_path)
+if __name__ == "__main__":
+    dir_path = '/Users/dborstlap/Downloads/EXPEDITIE ABISKO 2024 foto en video'
+    rename_pictures_recursively(dir_path)
+    print('DONE')
