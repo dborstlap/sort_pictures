@@ -6,6 +6,9 @@
 
 # TODO make utils file. Put all functions like 'get_exif_datetime' and 'datetime_to_string' in this file, instead of spread out between all files
 
+# TODO include dir_target input variable to indiciate where the sorted imgs should go to
+
+
 import os
 from datetime import datetime
 from hachoir.parser import createParser
@@ -144,13 +147,13 @@ def get_sort_path(file_dateTime, dir_sorted, dir_not_sure, sure, sort_by):
 
 
 # where the real magic happens
-def sort_by_date(dir, orig=True, dir_orig=None, sort_by='month'):
+def sort_by_date(dir_to_sort, orig=True, dir_orig=None, sort_by='month'):
 
     if sort_by not in ['year', 'month', 'day']:
         raise ValueError("sort_by must be 'year', 'month', or 'day'")
 
     if orig == True:
-        dir_orig = dir
+        dir_orig = dir_to_sort
     dir_sorted = dir_orig + '/' + FOLDER_SORTED + '/'
     dir_sorted_ims = dir_sorted + FOLDER_IMAGES + '/'
     dir_sorted_vids = dir_sorted + FOLDER_VIDEOS + '/'
@@ -164,19 +167,19 @@ def sort_by_date(dir, orig=True, dir_orig=None, sort_by='month'):
     folders = []
 
     # Iterate directory
-    for path in os.listdir(dir):
+    for path in os.listdir(dir_to_sort):
         # check if current path is a file
-        if os.path.isfile(os.path.join(dir, path)):
+        if os.path.isfile(os.path.join(dir_to_sort, path)):
             files.append(path)
-        elif os.path.isdir(os.path.join(dir, path)):
-            if not (orig and os.path.normpath(os.path.join(dir, path)) == os.path.normpath(dir_sorted)):
+        elif os.path.isdir(os.path.join(dir_to_sort, path)):
+            if not (orig and os.path.normpath(os.path.join(dir_to_sort, path)) == os.path.normpath(dir_sorted)):
                 folders.append(path)
         else:
-            print('wtf happened here this is not right, this is not a file nor a folder how tf is that possible:' + str(os.path.join(dir, path)))
+            print('wtf happened here this is not right, this is not a file nor a folder how tf is that possible:' + str(os.path.join(dir_to_sort, path)))
 
 
     for file in files:
-        path = os.path.join(dir, file)
+        path = os.path.join(dir_to_sort, file)
         file_type = get_file_type(path)
         
         # sort images
@@ -202,15 +205,15 @@ def sort_by_date(dir, orig=True, dir_orig=None, sort_by='month'):
             print('other file', file, 'sorted in folder', dir_other_files)
 
     for folder in folders:
-        sort_by_date(os.path.join(dir, folder), orig=False, dir_orig=dir_orig)
+        sort_by_date(os.path.join(dir_to_sort, folder), orig=False, dir_orig=dir_orig)
 
-    print('directory ', dir, ' is sorted')
+    print('directory ', dir_to_sort, ' is sorted')
     return
 
 
 if __name__ == "__main__":
-    dir = '/Users/dborstlap/Pictures/project mama/project mama 13-12'
-    sort_by_date(dir, sort_by='month')
+    dir_to_sort = '/Users/dborstlap/tmp/DISKS best of'
+    sort_by_date(dir_to_sort, sort_by='month')
     print('DONE')
 
 

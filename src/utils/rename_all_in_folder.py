@@ -1,5 +1,5 @@
 import os
-from sort_pictures import get_image_datetime, get_video_datetime, get_file_type
+from src.date_taken.sort_pictures import get_image_datetime, get_video_datetime, get_file_type
 
 def rename_pictures_in_folder(dir_path):
     """

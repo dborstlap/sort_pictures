@@ -11,7 +11,7 @@ import piexif
 from PIL import Image
 from datetime import datetime
 from get_calendar_events import load_events
-from sort_pictures import get_image_datetime
+from src.date_taken.sort_pictures import get_image_datetime
 
 
 def get_events_at_datetime(events, specific_datetime):
